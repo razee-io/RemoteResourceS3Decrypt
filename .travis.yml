@@ -1,0 +1,55 @@
+language: node_js
+
+node_js:
+  - "11"
+
+services:
+  - docker
+
+script:
+  # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
+  - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --low; else npx audit-ci --low || true; fi
+  - npm run lint
+  - npm test
+  - docker build --rm -t "quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT}" .
+  - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT} quay.io/razee/remoteresources3decrypt:${TRAVIS_TAG}; fi
+  - if [ -n "${TRAVIS_TAG}" ]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
+  - docker images
+  - ./build/process-template.sh kubernetes/remoteresources3decrypt/resource.yaml >/tmp/resource.yaml
+
+before_deploy:
+  - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
+
+deploy:
+  # Deploy alpha builds
+  - provider: script
+    script: docker push "quay.io/razee/remoteresources3decrypt:${TRAVIS_TAG}"
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}$
+  - provider: releases
+    file: /tmp/resource.yaml
+    skip_cleanup: true
+    draft: true
+    api_key:
+      secure: "${GITHUB_TOKEN}"
+    on:
+      tags: true
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+_[0-9]{3}$
+
+  # Deploy released builds
+  - provider: script
+    script: docker push "quay.io/razee/remoteresources3decrypt:${TRAVIS_TAG}"
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
+  - provider: releases
+    file: /tmp/resource.yaml
+    skip_cleanup: true
+    api_key:
+      secure: "${GITHUB_TOKEN}"
+    on:
+      tags: true
+      condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$

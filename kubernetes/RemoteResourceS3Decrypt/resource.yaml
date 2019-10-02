@@ -1,0 +1,221 @@
+apiVersion: v1
+kind: List
+metadata:
+  name: remoteresources3decrypt-controller-list
+  annotations:
+    version: "{{TRAVIS_COMMIT}}"
+type: array
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: remoteresources3decrypt-controller
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: remoteresources3decrypt-controller
+      strategy:
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: remoteresources3decrypt-controller
+          name: remoteresources3decrypt-controller
+        spec:
+          serviceAccountName: razeedeploy-sa
+          containers:
+          - image: "quay.io/razee/remoteresources3decrypt:{{TRAVIS_TAG}}"
+            resources:
+              limits:
+                memory: 200Mi
+                cpu: 100m
+              requests:
+                memory: 75Mi
+                cpu: 40m
+            imagePullPolicy: Always
+            name: remoteresources3decrypt-controller
+            livenessProbe:
+              exec:
+                command:
+                - sh/liveness.sh
+              initialDelaySeconds: 30
+              periodSeconds: 150
+              timeoutSeconds: 30
+              failureThreshold: 1
+            volumeMounts:
+            - mountPath: /usr/src/app/download-cache
+              name: cache-volume
+            - mountPath: /usr/src/app/config
+              name: razeedeploy-config
+          volumes:
+          - name: cache-volume
+            emptyDir: {}
+          - name: razeedeploy-config
+            configMap:
+              name: razeedeploy-config
+              defaultMode: 420
+              optional: true
+
+  - apiVersion: apiextensions.k8s.io/v1beta1
+    kind: CustomResourceDefinition
+    metadata:
+      # name must match the spec fields below, and be in the form: <plural>.<group>
+      name: remoteresourcess3.deploy.razee.io
+      annotations:
+        razee.io/git-repo: "{{{GIT_REMOTE}}}"
+        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+    spec:
+      # group name to use for REST API: /apis/<group>/<version>
+      group: deploy.razee.io
+      # list of versions supported by this CustomResourceDefinition
+      versions:
+        - name: v1alpha1
+          # Each version can be enabled/disabled by Served flag.
+          served: true
+          # One and only one version must be marked as the storage version.
+          storage: true
+      # either Namespaced or Cluster
+      scope: Namespaced
+      names:
+        # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+        plural: remoteresourcess3decrypt
+        # singular name to be used as an alias on the CLI and for display
+        singular: remoteresources3decrypt
+        # kind is normally the CamelCased singular type. Your resource manifests use this.
+        kind: RemoteResourceS3Decrypt
+        # shortNames allow shorter string to match your resource on the CLI
+        shortNames:
+        - rrs3
+      subresources:
+        # status enables the status subresource.
+        status: {}
+      validation:
+        # openAPIV3Schema is the schema for validating custom objects.
+        openAPIV3Schema:
+          properties:
+            spec:
+              type: object
+              required: [requests]
+              properties:
+                auth:
+                  type: object
+                  oneOf:
+                  - type: object
+                    required: [hmac]
+                    properties:
+                      hmac:
+                        type: object
+                        required: [access_key_id, secret_access_key]
+                        properties:
+                          access_key_id:
+                            oneOf:
+                            - type: string
+                            - type: object
+                              required: [valueFrom]
+                              properties:
+                                valueFrom:
+                                  type: object
+                                  required: [secretKeyRef]
+                                  properties:
+                                    secretKeyRef:
+                                      type: object
+                                      required: [name, key]
+                                      properties:
+                                        name:
+                                          type: string
+                                        key:
+                                          type: string
+                          secret_access_key:
+                            oneOf:
+                            - type: string
+                            - type: object
+                              required: [valueFrom]
+                              properties:
+                                valueFrom:
+                                  type: object
+                                  required: [secretKeyRef]
+                                  properties:
+                                    secretKeyRef:
+                                      type: object
+                                      required: [name, key]
+                                      properties:
+                                        name:
+                                          type: string
+                                        key:
+                                          type: string
+                  - type: object
+                    required: [iam]
+                    properties:
+                      iam:
+                        type: object
+                        required: [response_type, grant_type, url, api_key]
+                        properties:
+                          response_type:
+                            type: string
+                          grant_type:
+                            type: string
+                          url:
+                            type: string
+                            format: uri
+                          api_key:
+                            oneOf:
+                            - type: string
+                            - type: object
+                              required: [valueFrom]
+                              properties:
+                                valueFrom:
+                                  type: object
+                                  required: [secretKeyRef]
+                                  properties:
+                                    secretKeyRef:
+                                      type: object
+                                      required: [name, key]
+                                      properties:
+                                        name:
+                                          type: string
+                                        key:
+                                          type: string
+                requests:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      optional:
+                        type: boolean
+                    oneOf:
+                    - type: object
+                      required: [options]
+                      properties:
+                        options:
+                          type: object
+                          required: [url]
+                          properties:
+                            url:
+                              type: string
+                              format: uri
+                    - type: object
+                      required: [options]
+                      properties:
+                        options:
+                          type: object
+                          required: [uri]
+                          properties:
+                            uri:
+                              type: string
+                              format: uri
+                    - type: object
+                      required: [url]
+                      properties:
+                        url:
+                          type: string
+                          format: uri
+                    - type: object
+                      required: [uri]
+                      properties:
+                        uri:
+                          type: string
+                          format: uri
