@@ -63,6 +63,8 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
       return res;
     }
 
+    let source = reqOpt.uri || reqOpt.url;
+
     let keys = objectPath.get(this.data, ['object', 'spec', 'keys']);
     this.log.debug('Fetching keys:', JSON.stringify(keys));
 
@@ -89,7 +91,6 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
       }
     }
 
-    let source = reqOpt.uri || reqOpt.url;
     try {
       this.log.debug(`Downloaded from ${source}`);
       if (source.includes('.gpg')) {
