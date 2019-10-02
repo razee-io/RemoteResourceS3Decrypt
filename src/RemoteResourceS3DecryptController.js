@@ -79,7 +79,12 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
         }
         this.log.debug('Keys found', JSON.stringify(gpgKey));
         if (gpgKey) {
-          await gpg.importPrivateKey(gpgKey);
+          try {
+            await gpg.importPrivateKey(gpgKey);
+          } catch (e) {
+            this.log.error(e, 'import keys failed');
+            return Promise.reject({ statusCode: 500, message: 'import keys failed.. see logs for details.', url: source });
+          }
         }
       }
     }
