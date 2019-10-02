@@ -89,7 +89,7 @@ items:
         kind: RemoteResourceS3Decrypt
         # shortNames allow shorter string to match your resource on the CLI
         shortNames:
-        - rrs3
+        - rrs3d
       subresources:
         # status enables the status subresource.
         status: {}
