@@ -15,7 +15,7 @@ script:
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT} quay.io/razee/remoteresources3decrypt:${TRAVIS_TAG}; fi
   - if [ -n "${TRAVIS_TAG}" ]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
   - docker images
-  - ./build/process-template.sh kubernetes/remoteresources3decrypt/resource.yaml >/tmp/resource.yaml
+  - ./build/process-template.sh kubernetes/RemoteResourceS3Decrypt/resource.yaml >/tmp/resource.yaml
 
 before_deploy:
   - docker login -u="${QUAY_ID}" -p="${QUAY_TOKEN}" quay.io
