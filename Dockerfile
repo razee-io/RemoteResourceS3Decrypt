@@ -28,7 +28,7 @@ RUN npm install --production --loglevel=warn
 
 
 FROM node:alpine
-RUN apk add --upgrade --no-cache libssl1.1 gnupg
+RUN apk add --upgrade --no-cache libssl1.1
 RUN mkdir -p /usr/src/app
 ENV PATH="$PATH:/usr/src/app"
 WORKDIR /usr/src/app

@@ -31,7 +31,8 @@
     "type": "git",
     "url": "git@github.com:razee-io/RemoteResourceS3Decrypt.git"
   },
-  "contributors": [{
+  "contributors": [
+    {
       "name": "Alex Lewitt"
     },
     {
@@ -47,9 +48,9 @@
     "@razee/razeedeploy-core": "^0.5.0",
     "@razee/remoteresources3": "^0.3.1",
     "bunyan": "^1.8.12",
-    "gpg": "^0.6.0",
     "gunzip-maybe": "^1.4.1",
     "object-path": "^0.11.4",
+    "openpgp": "^4.6.2",
     "tar-stream": "^2.1.0"
   },
   "devDependencies": {

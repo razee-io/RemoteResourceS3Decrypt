@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const gpg = require('./gpg-api');
+const openpgp = require('openpgp');
 const loggerFactory = require('./bunyan-api');
 const gunzip = require('gunzip-maybe');
 const objectPath = require('object-path');
@@ -57,7 +57,7 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
   }
 
   async download(reqOpt) {
-    reqOpt.encoding = null; // res.body will be a buffer and not a string
+
     let res = await super.download(reqOpt);
     if (res.statusCode != 200) {
       return res;
@@ -67,6 +67,7 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
 
     let keys = objectPath.get(this.data, ['object', 'spec', 'keys']);
     this.log.debug('Fetching keys:', JSON.stringify(keys));
+    let options = { privateKeys: [] };
 
     if (Array.isArray(keys)) {
       for (var i = 0, len = keys.length; i < len; i++) {
@@ -79,23 +80,26 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
         } else {
           gpgKey = keys[i];
         }
-        this.log.debug('Keys found', JSON.stringify(gpgKey));
+
         if (gpgKey) {
-          try {
-            await gpg.importPrivateKey(gpgKey);
-          } catch (e) {
-            this.log.error(e, 'import keys failed');
-            return Promise.reject({ statusCode: 500, message: 'import keys failed.. see logs for details.', url: source });
+          const privKeyObj = await openpgp.key.readArmored(gpgKey.replace(/^[^\S\r\n]+/gm, ''));
+          if (privKeyObj.err) {
+            this.log.error(privKeyObj.err);
+            return Promise.reject({ statusCode: 500, message: 'import key failed.. see logs for details.', url: source });
           }
+          options.privateKeys = options.privateKeys.concat(privKeyObj.keys);
         }
       }
     }
+    this.log.debug('All Keys found:', options.privateKeys.map(k => k.getUserIds()));
 
     try {
       this.log.debug(`Downloaded from ${source}`);
       if (source.includes('.gpg')) {
         this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url}`);
-        res.body = await gpg.decryptBuffer(res.body);
+        objectPath.set(options, 'message', await openpgp.message.readArmored(res.body));
+        let plaintext = await openpgp.decrypt(options);
+        res.body = plaintext.data;
         this.log.debug(`Decrypting Succeeded ${reqOpt.uri || reqOpt.url}`);
       }
       if (source.includes('.tar') || source.includes('.tgz')) {
