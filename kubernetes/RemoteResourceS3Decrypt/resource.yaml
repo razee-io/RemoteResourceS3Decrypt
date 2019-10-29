@@ -13,6 +13,8 @@ items:
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
         razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+      labels:
+        razee/watch-resource: "lite"
     spec:
       replicas: 1
       selector:
@@ -24,6 +26,7 @@ items:
         metadata:
           labels:
             app: remoteresources3decrypt-controller
+            razee/watch-resource: "lite"
           name: remoteresources3decrypt-controller
         spec:
           serviceAccountName: razeedeploy-sa
