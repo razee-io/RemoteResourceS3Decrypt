@@ -87,6 +87,11 @@ items:
           # Each version can be enabled/disabled by Served flag.
           served: true
           # One and only one version must be marked as the storage version.
+          storage: false
+        - name: v1alpha2
+          # Each version can be enabled/disabled by Served flag.
+          served: true
+          # One and only one version must be marked as the storage version.
           storage: true
       # either Namespaced or Cluster
       scope: Namespaced
@@ -106,6 +111,8 @@ items:
       validation:
         # openAPIV3Schema is the schema for validating custom objects.
         openAPIV3Schema:
+          type: object
+          required: [spec]
           properties:
             spec:
               type: object
@@ -114,118 +121,141 @@ items:
                 auth:
                   type: object
                   oneOf:
-                  - type: object
-                    required: [hmac]
-                    properties:
-                      hmac:
+                    - required: [hmac]
+                    - required: [iam]
+                  properties:
+                    hmac:
+                      type: object
+                      allOf:
+                        - oneOf:
+                            - required: [accessKeyId]
+                            - required: [accessKeyIdRef]
+                        - oneOf:
+                            - required: [secretAccessKey]
+                            - required: [secretAccessKeyRef]
+                      properties:
+                        accessKeyId:
+                          type: string
+                        accessKeyIdRef:
+                          type: object
+                          required: [valueFrom]
+                          properties:
+                            valueFrom:
+                              type: object
+                              required: [secretKeyRef]
+                              properties:
+                                secretKeyRef:
+                                  type: object
+                                  required: [name, key]
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                    key:
+                                      type: string
+                        secretAccessKey:
+                          type: string
+                        secretAccessKeyRef:
+                          type: object
+                          required: [valueFrom]
+                          properties:
+                            valueFrom:
+                              type: object
+                              required: [secretKeyRef]
+                              properties:
+                                secretKeyRef:
+                                  type: object
+                                  required: [name, key]
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                    key:
+                                      type: string
+                    iam:
+                      type: object
+                      allOf:
+                        - required: [responseType, grantType, url]
+                        - oneOf:
+                            - required: [apiKey]
+                            - required: [apiKeyRef]
+                      properties:
+                        responseType:
+                          type: string
+                        grantType:
+                          type: string
+                        url:
+                          type: string
+                          format: uri
+                        apiKey:
+                          type: string
+                        apiKeyRef:
+                          type: object
+                          required: [valueFrom]
+                          properties:
+                            valueFrom:
+                              type: object
+                              required: [secretKeyRef]
+                              properties:
+                                secretKeyRef:
+                                  type: object
+                                  required: [name, key]
+                                  properties:
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                    key:
+                                      type: string
+                gpg:
+                  type: object
+                  oneOf:
+                    - required: [privateKeys]
+                    - required: [privateKeyRefs]
+                  properties:
+                    privateKeys:
+                      type: array
+                      items:
+                        type: string
+                    privateKeyRefs:
+                      type: array
+                      items:
                         type: object
-                        required: [access_key_id, secret_access_key]
+                        required: [valueFrom]
                         properties:
-                          access_key_id:
-                            oneOf:
-                            - type: string
-                            - type: object
-                              required: [valueFrom]
-                              properties:
-                                valueFrom:
-                                  type: object
-                                  required: [secretKeyRef]
-                                  properties:
-                                    secretKeyRef:
-                                      type: object
-                                      required: [name, key]
-                                      properties:
-                                        name:
-                                          type: string
-                                        key:
-                                          type: string
-                          secret_access_key:
-                            oneOf:
-                            - type: string
-                            - type: object
-                              required: [valueFrom]
-                              properties:
-                                valueFrom:
-                                  type: object
-                                  required: [secretKeyRef]
-                                  properties:
-                                    secretKeyRef:
-                                      type: object
-                                      required: [name, key]
-                                      properties:
-                                        name:
-                                          type: string
-                                        key:
-                                          type: string
-                  - type: object
-                    required: [iam]
-                    properties:
-                      iam:
-                        type: object
-                        required: [response_type, grant_type, url, api_key]
-                        properties:
-                          response_type:
-                            type: string
-                          grant_type:
-                            type: string
-                          url:
-                            type: string
-                            format: uri
-                          api_key:
-                            oneOf:
-                            - type: string
-                            - type: object
-                              required: [valueFrom]
-                              properties:
-                                valueFrom:
-                                  type: object
-                                  required: [secretKeyRef]
-                                  properties:
-                                    secretKeyRef:
-                                      type: object
-                                      required: [name, key]
-                                      properties:
-                                        name:
-                                          type: string
-                                        key:
-                                          type: string
+                          valueFrom:
+                            type: object
+                            required: [secretKeyRef]
+                            properties:
+                              secretKeyRef:
+                                type: object
+                                required: [name, key]
+                                properties:
+                                  name:
+                                    type: string
+                                  namespace:
+                                    type: string
+                                  key:
+                                    type: string
                 requests:
                   type: array
                   items:
                     type: object
+                    required: [options]
                     properties:
                       optional:
                         type: boolean
-                    oneOf:
-                    - type: object
-                      required: [options]
-                      properties:
-                        options:
-                          type: object
-                          required: [url]
-                          properties:
-                            url:
-                              type: string
-                              format: uri
-                    - type: object
-                      required: [options]
-                      properties:
-                        options:
-                          type: object
-                          required: [uri]
-                          properties:
-                            uri:
-                              type: string
-                              format: uri
-                    - type: object
-                      required: [url]
-                      properties:
-                        url:
-                          type: string
-                          format: uri
-                    - type: object
-                      required: [uri]
-                      properties:
-                        uri:
-                          type: string
-                          format: uri
+                      options:
+                        type: object
+                        oneOf:
+                          - required: [url]
+                          - required: [uri]
+                        properties:
+                          url:
+                            type: string
+                            format: uri
+                          uri:
+                            type: string
+                            format: uri
