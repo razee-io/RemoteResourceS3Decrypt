@@ -19,7 +19,7 @@ kubectl apply -f "https://github.com/razee-io/RemoteResourceS3Decrypt/releases/l
 ### Sample
 
 ```yaml
-apiVersion: "deploy.razee.io/v1alpha1"
+apiVersion: "deploy.razee.io/v1alpha2"
 kind: RemoteResourceS3Decrypt
 metadata:
   name: <remote_resource_s3_name>
