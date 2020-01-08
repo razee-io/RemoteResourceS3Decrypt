@@ -1,7 +1,7 @@
 # RemoteResourceS3Decrypt
 
 [![Build Status](https://travis-ci.com/razee-io/RemoteResourceS3Decrypt.svg?branch=master)](https://travis-ci.com/razee-io/RemoteResourceS3Decrypt)
-[![Greenkeeper badge](https://badges.greenkeeper.io/razee-io/RemoteResourceS3Decrypt.svg)](https://greenkeeper.io/)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=razee-io/RemoteResourceS3Decrypt)](https://dependabot.com)
 ![GitHub](https://img.shields.io/github/license/razee-io/RemoteResourceS3Decrypt.svg?color=success)
 
 RemoteResourceS3Decrypt is a variant of RemoteResourceS3. RemoteResourceS3Decrypt
