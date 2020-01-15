@@ -50,7 +50,7 @@
     "bunyan": "^1.8.12",
     "gunzip-maybe": "^1.4.1",
     "object-path": "^0.11.4",
-    "openpgp": "^4.7.2",
+    "openpgp": "^4.8.0",
     "tar-stream": "^2.1.0"
   },
   "devDependencies": {
