@@ -65,11 +65,14 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
 
     let source = reqOpt.uri || reqOpt.url;
 
-    let keys = objectPath.get(this.data, ['object', 'spec', 'keys']);
+    let alpha1Keys = objectPath.get(this.data, ['object', 'spec', 'keys'], []);
+    let objKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeyRefs'], []);
+    let strKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeys'], []);
+    let keys = alpha1Keys.concat(objKeys, strKeys);
     this.log.debug('Fetching keys:', JSON.stringify(keys));
     let options = { privateKeys: [] };
 
-    if (Array.isArray(keys)) {
+    if (keys.length > 0) {
       for (var i = 0, len = keys.length; i < len; i++) {
         let gpgKey;
         if (typeof keys[i] == 'object') {
