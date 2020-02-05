@@ -13,7 +13,6 @@ script:
   - npm test
   - docker build --rm -t "quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT}" .
   - if [ -n "${TRAVIS_TAG}" ]; then docker tag quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT} quay.io/razee/remoteresources3decrypt:${TRAVIS_TAG}; fi
-  - if [ -n "${TRAVIS_TAG}" ]; then npm version --no-git-tag-version "${TRAVIS_TAG}"; fi
   - docker images
   - ./build/process-template.sh kubernetes/RemoteResourceS3Decrypt/resource.yaml >/tmp/resource.yaml
 
