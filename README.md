@@ -28,10 +28,10 @@ spec:
   gpg:
     privateKeys:
       - |
-        -----BEGIN PGP PUBLIC KEY BLOCK-----
+        -----BEGIN PGP PRIVATE KEY BLOCK-----
 
         your asci armored gpg key would go here
-        -----END PGP PUBLIC KEY BLOCK-----
+        -----END PGP PRIVATE KEY BLOCK-----
     privateKeyRefs:
       - valueFrom:
           secretKeyRef:
