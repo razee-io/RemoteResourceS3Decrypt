@@ -56,13 +56,6 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
     });
   }
 
-  async isCompressed (source) {
-    if (source.includes('.tar') || source.includes('.tgz')) {
-      return true;
-    }
-    return false;
-  }
-
   async download(reqOpt) {
 
     let res = await super.download(reqOpt);
@@ -105,9 +98,10 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
 
     try {
       this.log.debug(`Downloaded from ${source}`);
+      const isCompressed = source.includes('.tar') || source.includes('.tgz');
       if (source.includes('.gpg')) {
-        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} compressed: ${isCompressed(source)}`);
-        if (isCompressed(source)) {
+        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} compressed: ${isCompressed}`);
+        if (isCompressed) {
           objectPath.set(options, 'message', await openpgp.message.read(res.body));
           objectPath.set(options, 'format', 'binary');
         } else {
@@ -117,7 +111,7 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
         res.body = plaintext.data;
         this.log.debug(`Decrypting Succeeded ${reqOpt.uri || reqOpt.url}`);
       }
-      if (isCompressed(source)) {
+      if (isCompressed) {
         res.body = await this.uncompress(res.body);
       }
       return res;
