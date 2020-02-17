@@ -57,7 +57,10 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
   }
 
   async download(reqOpt) {
-
+    // disable response encoding, so that res.body is Buffer type
+    reqOpt.encoding = null;
+    // get full response payload to avoid http chunked data
+    reqOpt.resolveWithFullResponse = true;
     let res = await super.download(reqOpt);
     if (res.statusCode != 200) {
       return res;
@@ -65,6 +68,13 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
 
     let source = reqOpt.uri || reqOpt.url;
 
+    let isBinary = false;
+    if (res.headers['content-type'] === 'binary/octet-stream') {
+      isBinary = true;
+    } else {
+      // if response is not binary, reset body to utf-8 string
+      res.body = res.body.toString('utf8');
+    }
     let alpha1Keys = objectPath.get(this.data, ['object', 'spec', 'keys'], []);
     let objKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeyRefs'], []);
     let strKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeys'], []);
@@ -100,8 +110,8 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
       this.log.debug(`Downloaded from ${source}`);
       const isCompressed = source.includes('.tar') || source.includes('.tgz');
       if (source.includes('.gpg')) {
-        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} compressed: ${isCompressed}`);
-        if (isCompressed) {
+        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} isBinary: ${isBinary} isCompressed: ${isCompressed}`);
+        if (isBinary) {
           objectPath.set(options, 'message', await openpgp.message.read(res.body));
           objectPath.set(options, 'format', 'binary');
         } else {
