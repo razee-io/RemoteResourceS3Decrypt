@@ -57,7 +57,10 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
   }
 
   async download(reqOpt) {
-
+    // disable response encoding, so that res.body is Buffer type
+    reqOpt.encoding = null;
+    // get full response payload to avoid http chunked data
+    reqOpt.resolveWithFullResponse = true;
     let res = await super.download(reqOpt);
     if (res.statusCode != 200) {
       return res;
@@ -65,6 +68,13 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
 
     let source = reqOpt.uri || reqOpt.url;
 
+    let isBinary = false;
+    if (res.headers['content-type'] === 'binary/octet-stream') {
+      isBinary = true;
+    } else {
+      // if response is not binary, reset body to utf-8 string
+      res.body = res.body.toString('utf8');
+    }
     let alpha1Keys = objectPath.get(this.data, ['object', 'spec', 'keys'], []);
     let objKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeyRefs'], []);
     let strKeys = objectPath.get(this.data, ['object', 'spec', 'gpg', 'privateKeys'], []);
@@ -97,15 +107,21 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
     this.log.debug('All Keys found:', options.privateKeys.map(k => k.getUserIds()));
 
     try {
-      this.log.debug(`Downloaded from ${source}`);
+      this.log.info(`Downloaded from ${source} type: ${Buffer.isBuffer(res.body) ? 'Buffer' : typeof res.body} length: ${res.body.length}`);
+      const isCompressed = source.includes('.tar') || source.includes('.tgz');
       if (source.includes('.gpg')) {
-        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url}`);
-        objectPath.set(options, 'message', await openpgp.message.readArmored(res.body));
+        this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} isBinary: ${isBinary} isCompressed: ${isCompressed}`);
+        if (isBinary) {
+          objectPath.set(options, 'message', await openpgp.message.read(res.body));
+          objectPath.set(options, 'format', 'binary');
+        } else {
+          objectPath.set(options, 'message', await openpgp.message.readArmored(res.body));
+        }
         let plaintext = await openpgp.decrypt(options);
         res.body = plaintext.data;
         this.log.debug(`Decrypting Succeeded ${reqOpt.uri || reqOpt.url}`);
       }
-      if (source.includes('.tar') || source.includes('.tgz')) {
+      if (isCompressed) {
         res.body = await this.uncompress(res.body);
       }
       return res;
