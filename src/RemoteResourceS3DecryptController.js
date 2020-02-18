@@ -107,7 +107,7 @@ module.exports = class RemoteResourceS3DecryptController extends RemoteResourceS
     this.log.debug('All Keys found:', options.privateKeys.map(k => k.getUserIds()));
 
     try {
-      this.log.debug(`Downloaded from ${source}`);
+      this.log.info(`Downloaded from ${source} type: ${Buffer.isBuffer(res.body) ? 'Buffer' : typeof res.body} length: ${res.body.length}`);
       const isCompressed = source.includes('.tar') || source.includes('.tgz');
       if (source.includes('.gpg')) {
         this.log.debug(`Decrypting ${reqOpt.uri || reqOpt.url} isBinary: ${isBinary} isCompressed: ${isCompressed}`);
