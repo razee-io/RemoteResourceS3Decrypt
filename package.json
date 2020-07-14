@@ -45,7 +45,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@razee/kubernetes-util": "^0.1.3",
-    "@razee/razeedeploy-core": "^0.8.5",
+    "@razee/razeedeploy-core": "^0.9.0",
     "@razee/remoteresources3": "^0.6.2",
     "bunyan": "^1.8.14",
     "gunzip-maybe": "^1.4.2",
