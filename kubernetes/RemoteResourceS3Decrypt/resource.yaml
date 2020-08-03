@@ -61,9 +61,9 @@ items:
                 timeoutSeconds: 30
                 failureThreshold: 1
               volumeMounts:
-                - mountPath: /usr/src/app/download-cache
+                - mountPath: /home/node/download-cache
                   name: cache-volume
-                - mountPath: /usr/src/app/config
+                - mountPath: /home/node/config
                   name: razeedeploy-config
           volumes:
             - name: cache-volume
