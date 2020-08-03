@@ -7,7 +7,7 @@ services:
 
 script:
   # Audit npm packages. Fail build whan a PR audit fails, otherwise report the vulnerability and proceed.
-  - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npx audit-ci --low; else npx audit-ci --low || true; fi
+  - if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then npm audit; else npm audit || true; fi
   - npm run lint
   - npm test
   - docker build --rm -t "quay.io/razee/remoteresources3decrypt:${TRAVIS_COMMIT}" .
@@ -37,8 +37,8 @@ deploy:
   - provider: releases
     file: /tmp/resource.yaml
     skip_cleanup: true
-    api_key:
-      secure: "${GITHUB_TOKEN}"
+    api_key: "${GITHUB_TOKEN}"
+    name: "${TRAVIS_TAG}"
     on:
       tags: true
       condition: ${TRAVIS_TAG} =~ ^[0-9]+\.[0-9]+\.[0-9]+$
