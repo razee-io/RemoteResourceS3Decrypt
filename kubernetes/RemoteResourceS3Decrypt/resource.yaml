@@ -3,7 +3,7 @@ kind: List
 metadata:
   name: remoteresources3decrypt-controller-list
   annotations:
-    version: "{{TRAVIS_COMMIT}}"
+    version: "{{{TRAVIS_COMMIT}}}"
 type: array
 items:
   - apiVersion: apps/v1
@@ -12,7 +12,7 @@ items:
       name: remoteresources3decrypt-controller
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
-        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+        razee.io/commit-sha: "{{{TRAVIS_COMMIT}}}"
       labels:
         razee/watch-resource: "lite"
     spec:
@@ -30,45 +30,49 @@ items:
           name: remoteresources3decrypt-controller
         spec:
           serviceAccountName: razeedeploy-sa
+          securityContext:
+            runAsUser: {{{NODE_USER_ID}}}
+            runAsGroup: {{{NODE_GROUP_ID}}}
+            fsGroup: {{{NODE_GROUP_ID}}}
           containers:
-          - image: "quay.io/razee/remoteresources3decrypt:{{TRAVIS_TAG}}"
-            resources:
-              limits:
-                memory: 200Mi
-                cpu: 100m
-              requests:
-                memory: 75Mi
-                cpu: 40m
-            env:
-              - name: CRD_WATCH_TIMEOUT_SECONDS
-                valueFrom:
-                  configMapKeyRef:
-                    name: razeedeploy-overrides
-                    key: CRD_WATCH_TIMEOUT_SECONDS
-                    optional: true
-            imagePullPolicy: Always
-            name: remoteresources3decrypt-controller
-            livenessProbe:
-              exec:
-                command:
-                - sh/liveness.sh
-              initialDelaySeconds: 30
-              periodSeconds: 150
-              timeoutSeconds: 30
-              failureThreshold: 1
-            volumeMounts:
-            - mountPath: /usr/src/app/download-cache
-              name: cache-volume
-            - mountPath: /usr/src/app/config
-              name: razeedeploy-config
+            - image: "quay.io/razee/remoteresources3decrypt:{{{TRAVIS_TAG}}}"
+              resources:
+                limits:
+                  memory: 200Mi
+                  cpu: 100m
+                requests:
+                  memory: 75Mi
+                  cpu: 40m
+              env:
+                - name: CRD_WATCH_TIMEOUT_SECONDS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: razeedeploy-overrides
+                      key: CRD_WATCH_TIMEOUT_SECONDS
+                      optional: true
+              imagePullPolicy: Always
+              name: remoteresources3decrypt-controller
+              livenessProbe:
+                exec:
+                  command:
+                    - sh/liveness.sh
+                initialDelaySeconds: 30
+                periodSeconds: 150
+                timeoutSeconds: 30
+                failureThreshold: 1
+              volumeMounts:
+                - mountPath: /usr/src/app/download-cache
+                  name: cache-volume
+                - mountPath: /usr/src/app/config
+                  name: razeedeploy-config
           volumes:
-          - name: cache-volume
-            emptyDir: {}
-          - name: razeedeploy-config
-            configMap:
-              name: razeedeploy-config
-              defaultMode: 420
-              optional: true
+            - name: cache-volume
+              emptyDir: {}
+            - name: razeedeploy-config
+              configMap:
+                name: razeedeploy-config
+                defaultMode: 400
+                optional: true
 
   - apiVersion: apiextensions.k8s.io/v1beta1
     kind: CustomResourceDefinition
@@ -77,7 +81,7 @@ items:
       name: remoteresourcess3decrypt.deploy.razee.io
       annotations:
         razee.io/git-repo: "{{{GIT_REMOTE}}}"
-        razee.io/commit-sha: "{{TRAVIS_COMMIT}}"
+        razee.io/commit-sha: "{{{TRAVIS_COMMIT}}}"
     spec:
       # group name to use for REST API: /apis/<group>/<version>
       group: deploy.razee.io
@@ -279,7 +283,7 @@ items:
         kind: RemoteResourceS3Decrypt
         # shortNames allow shorter string to match your resource on the CLI
         shortNames:
-        - rrs3d
+          - rrs3d
       subresources:
         # status enables the status subresource.
         status: {}
