@@ -48,7 +48,7 @@
   "dependencies": {
     "@razee/kubernetes-util": "^0.1.5",
     "@razee/razeedeploy-core": "^0.9.1",
-    "@razee/remoteresources3": "^0.6.3",
+    "@razee/remoteresources3": "^0.6.4",
     "bunyan": "^1.8.14",
     "gunzip-maybe": "^1.4.2",
     "object-path": "^0.11.4",
