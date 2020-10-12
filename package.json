@@ -51,7 +51,7 @@
     "@razee/remoteresources3": "^0.6.4",
     "bunyan": "^1.8.14",
     "gunzip-maybe": "^1.4.2",
-    "object-path": "^0.11.4",
+    "object-path": "^0.11.5",
     "openpgp": "^4.10.8",
     "tar-stream": "^2.1.4"
   },
