@@ -49,7 +49,7 @@
     "@razee/kubernetes-util": "^0.1.6",
     "@razee/razeedeploy-core": "^0.10.4",
     "@razee/remoteresources3": "^0.7.0",
-    "bunyan": "^1.8.14",
+    "bunyan": "^1.8.15",
     "gunzip-maybe": "^1.4.2",
     "object-path": "^0.11.5",
     "openpgp": "^4.10.9",
@@ -68,7 +68,7 @@
     "nyc": "^15.1.0",
     "rewire": "^5.0.0",
     "shellcheck": "^0.4.4",
-    "sinon": "^9.2.2",
+    "sinon": "^9.2.3",
     "yaml-lint": "^1.2.4"
   }
 }
