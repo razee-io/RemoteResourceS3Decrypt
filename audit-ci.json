@@ -1,0 +1,5 @@
+{
+  "low": true,
+  "_skip-dev": "Avoid vuln in 'underscore', pulled in by jsonlint dev dependency.",
+  "skip-dev": "true"
+}
