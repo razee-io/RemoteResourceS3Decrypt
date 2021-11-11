@@ -1,8 +1,8 @@
 # This repo will be deprecated and unsupported starting February 2022
 
 Please move to using [RemoteResource](https://github.com/razee-io/RemoteResource)
-which now supports all capabilities of RemoteResourceS3 and [EncryptedResource](https://github.com/razee-io/EncryptedResource)
-for handling encrypted resources
+which now supports s3 capabilities from RemoteResourceS3 and [external-secrets](https://github.com/external-secrets/kubernetes-external-secrets)
+for handling secret resources
 
 ## RemoteResourceS3Decrypt
 
