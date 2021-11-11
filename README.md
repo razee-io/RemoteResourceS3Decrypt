@@ -1,7 +1,12 @@
-# RemoteResourceS3Decrypt
+# This repo will be deprecated and unsupported starting February 2022
+
+Please move to using [RemoteResource](https://github.com/razee-io/RemoteResource)
+which now supports s3 capabilities from RemoteResourceS3 and [external-secrets](https://github.com/external-secrets/kubernetes-external-secrets)
+for handling secret resources
+
+## RemoteResourceS3Decrypt
 
 [![Build Status](https://travis-ci.com/razee-io/RemoteResourceS3Decrypt.svg?branch=master)](https://travis-ci.com/razee-io/RemoteResourceS3Decrypt)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=razee-io/RemoteResourceS3Decrypt)](https://dependabot.com)
 ![GitHub](https://img.shields.io/github/license/razee-io/RemoteResourceS3Decrypt.svg?color=success)
 
 RemoteResourceS3Decrypt is a variant of RemoteResourceS3. RemoteResourceS3Decrypt

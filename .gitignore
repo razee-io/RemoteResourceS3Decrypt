@@ -63,3 +63,4 @@ typings/
 ########### Custom ignores ###########
 dev/
 download-cache/
+.npmrc
